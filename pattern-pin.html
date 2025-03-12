@@ -137,7 +137,7 @@
 
             <div class="feedback" id="pattern-feedback"></div>
             <button onclick="resetPattern()">Xóa Mẫu</button>
-            <button onclick="validatePattern()">Kiểm Tra Mật Khẩu</button>
+            <button onclick="validatePattern()">Hoàn Thành</button>
         </div>
     </div>
 
@@ -183,9 +183,10 @@
         }
 
         function getElementFromTouch(touch) {
-            const x = touch.clientX;
-            const y = touch.clientY;
-            const elements = document.elementsFromPoint(x, y);
+            const rect = patternGrid.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            const elements = document.elementsFromPoint(touch.clientX, touch.clientY);
             return elements.find(el => el.classList.contains('pattern-dot'));
         }
 
