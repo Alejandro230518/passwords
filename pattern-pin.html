@@ -193,7 +193,9 @@
         function handleTouchStart(e) {
             e.preventDefault();
             const dot = e.target;
-            startDrawing(dot);
+            if (dot.classList.contains('pattern-dot')) {
+                startDrawing(dot);
+            }
         }
 
         function handleTouchMove(e) {
@@ -209,7 +211,17 @@
 
         function handleTouchEnd(e) {
             e.preventDefault();
-            endPattern();
+            if (isDrawing) {
+                endPattern();
+                const isValid = updatePatternRequirements();
+                if (isValid) {
+                    window.location.href = 'success.html';
+                } else {
+                    const feedback = document.getElementById('pattern-feedback');
+                    feedback.className = 'feedback error';
+                    feedback.textContent = 'Vui lòng tạo một mẫu phức tạp hơn!';
+                }
+            }
         }
 
         function startPattern(e) {
