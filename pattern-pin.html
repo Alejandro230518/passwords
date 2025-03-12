@@ -137,7 +137,7 @@
 
             <div class="feedback" id="pattern-feedback"></div>
             <button onclick="resetPattern()">Xóa Mẫu</button>
-            <button onclick="validatePattern()">Hoàn Thành</button>
+            <button onclick="validatePattern()">Kiểm Tra Mật Khẩu</button>
         </div>
     </div>
 
@@ -166,16 +166,58 @@
                     y: dot.offsetTop + dot.offsetHeight / 2
                 });
 
+                // Add both mouse and touch event listeners
                 dot.addEventListener('mousedown', startPattern);
+                dot.addEventListener('touchstart', handleTouchStart);
                 dot.addEventListener('mouseenter', continuePattern);
+                dot.addEventListener('touchmove', handleTouchMove);
             }
 
             document.addEventListener('mouseup', endPattern);
+            document.addEventListener('touchend', handleTouchEnd);
+            
+            // Prevent scrolling when interacting with the pattern
+            patternGrid.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+            }, { passive: false });
+        }
+
+        function getElementFromTouch(touch) {
+            const x = touch.clientX;
+            const y = touch.clientY;
+            const elements = document.elementsFromPoint(x, y);
+            return elements.find(el => el.classList.contains('pattern-dot'));
+        }
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const dot = e.target;
+            startDrawing(dot);
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (!isDrawing) return;
+            
+            const touch = e.touches[0];
+            const dot = getElementFromTouch(touch);
+            if (dot && dot.classList.contains('pattern-dot')) {
+                continueDrawing(dot);
+            }
+        }
+
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            endPattern();
         }
 
         function startPattern(e) {
-            isDrawing = true;
             const dot = e.target;
+            startDrawing(dot);
+        }
+
+        function startDrawing(dot) {
+            isDrawing = true;
             const index = parseInt(dot.getAttribute('data-index'));
             pattern = [index];
             dot.classList.add('active');
@@ -184,8 +226,12 @@
 
         function continuePattern(e) {
             if (!isDrawing) return;
-
             const dot = e.target;
+            continueDrawing(dot);
+        }
+
+        function continueDrawing(dot) {
+            if (!dot) return;
             const index = parseInt(dot.getAttribute('data-index'));
             
             if (!pattern.includes(index)) {
