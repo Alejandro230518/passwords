@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIN An Toàn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #1a73e8;
+        }
+        .pin-input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .feedback {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        button {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #1557b0;
+        }
+        .requirements {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .requirement {
+            margin: 5px 0;
+            color: #666;
+        }
+        .requirement.met {
+            color: #0f9d58;
+        }
+        .examples {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #e8f0fe;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>THỰC HÀNH TẠO PIN AN TOÀN</h1>
+
+        <div style="text-align: center; margin: 20px 0;">
+            <img src="https://img.freepik.com/free-vector/security-concept-illustration_114360-7465.jpg" alt="PIN Security Illustration" style="max-width: 100%; height: 240px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        </div>
+
+        <!-- PIN Exercise Section -->
+        <div class="exercise-section" id="pin-section">
+            <p>Tạo một mã PIN an toàn từ 4-8 chữ số. Tránh các dãy số dễ đoán như 1234 hoặc 0000.</p>
+            
+            <input type="password" id="pin" class="pin-input" placeholder="Nhập PIN của bạn" maxlength="8">
+            <button onclick="togglePIN()">Hiện/Ẩn PIN</button>
+            
+            <div class="requirements" id="pin-requirements">
+                <div class="requirement" id="pin-length">✗ Độ dài từ 4 đến 8 chữ số</div>
+                <div class="requirement" id="pin-sequential">✗ Không chứa dãy số liên tiếp (vd: 1234)</div>
+                <div class="requirement" id="pin-repeated">✗ Không chứa 4 chữ số lặp lại (vd: 0000)</div>
+            </div>
+
+            <div class="examples">
+                <strong>Ví dụ:</strong><br>
+                PIN yếu: 1234, 0000, 1111<br>
+                PIN mạnh: 8402, 159723
+            </div>
+
+            <div class="feedback" id="pin-feedback"></div>
+            <button onclick="validatePIN()">Kiểm Tra PIN</button>
+            <button id="patternPinBtn" onclick="window.location.href='pattern-pin.html'" style="margin-top: 10px; background-color: #34a853; display: none;">Tiếp tục với Mật Khẩu Mẫu</button>
+        </div>
+    </div>
+
+    <script>
+        let pinVisible = false;
+
+        function togglePIN() {
+            const pinInput = document.getElementById('pin');
+            pinVisible = !pinVisible;
+            pinInput.type = pinVisible ? 'text' : 'password';
+        }
+
+        function updatePINRequirements(pin) {
+            const requirements = {
+                length: pin.length >= 4 && pin.length <= 8,
+                sequential: !(/0123|1234|2345|3456|4567|5678|6789|9876|8765|7654|6543|5432|4321|3210/.test(pin)),
+                repeated: !(/([0-9])\1{3,}/.test(pin))
+            };
+
+            for (const [requirement, met] of Object.entries(requirements)) {
+                const element = document.getElementById(`pin-${requirement}`);
+                element.className = `requirement ${met ? 'met' : ''}`;
+                element.innerHTML = `${met ? '✓' : '✗'} ${element.textContent.substring(2)}`;
+            }
+
+            return Object.values(requirements).every(Boolean);
+        }
+
+        function validatePIN() {
+            const pin = document.getElementById('pin').value;
+            const feedback = document.getElementById('pin-feedback');
+            const patternPinBtn = document.getElementById('patternPinBtn');
+            
+            if (!pin.match(/^[0-9]+$/)) {
+                feedback.className = 'feedback error';
+                feedback.textContent = 'PIN chỉ được chứa các chữ số!';
+                patternPinBtn.style.display = 'none';
+                return;
+            }
+
+            const isValid = updatePINRequirements(pin);
+            
+            if (isValid) {
+                feedback.className = 'feedback success';
+                feedback.textContent = 'Tuyệt vời! Bạn đã tạo một PIN an toàn!';
+                patternPinBtn.style.display = 'block';
+            } else {
+                feedback.className = 'feedback error';
+                feedback.textContent = 'Vui lòng kiểm tra lại các yêu cầu và thử lại!';
+                patternPinBtn.style.display = 'none';
+            }
+        }
+
+        // Live validation for PIN
+        document.getElementById('pin').addEventListener('input', function(e) {
+            updatePINRequirements(e.target.value);
+        });
+    </script>
+</body>
+</html>
